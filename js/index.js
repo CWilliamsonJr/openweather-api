@@ -6,9 +6,6 @@ $(document).ready(function() { // runs when the page is loaded
     BackgroundWeatherImage($(this).find(".condition").text());
 });
 
-
-
-
 }); // End of Page Load
 
 function GetWeather(weatherApi) {
@@ -26,34 +23,46 @@ function DisplayWeather(weather) { // Displays the layout
   let datesArr = ParseDate(weather);
   let forcastDays = 5;
   let day = "";
-  let celTempHi;
-  let celTempLow;
+  let celTempHi,celTempLow;
+  let tempHi, tempLo;
+  let expectedOutlook;
+  let humidity,speed;
+  let weatherIcon, description;
 
-   $("#city_name").html(weather.city.name).addClass("h2");
+   $("#city_name").html(weather.city.name +", "+ weather.city.country).addClass("h2");
   for (i = 0; i < forcastDays; i++) {
     day = "#day" + i;
-    celTempHi = Math.round((weather.list[i].temp.max -32) * .5556);
+    celTempHi = Math.round((weather.list[i].temp.max -32) * .5556); // converst temp to Celcius
     celTempLow = Math.round((weather.list[i].temp.min -32) * .5556);
+    tempHi =  Math.round(weather.list[i].temp.max);
+    tempLo = Math.round(weather.list[i].temp.min);
+    expectedOutlook =  weather.list[i].weather[0].description;
+    humidity = weather.list[i].humidity;
+    speed =  weather.list[i].speed;
+    weatherIcon = weather.list[i].weather[0].icon;
+    description = weather.list[i].weather[0].main
+
     $(day).text(datesArr[i]); //date
-    $(day + "_temp").html("<b>Hi:</b> " + weather.list[i].temp.max +" (" + celTempHi +")<b> / Lo:</b> " + weather.list[i].temp.min +" ("+celTempLow+")"); // High and Low temp
-    $(day + "_description").html("<b>Expected Outlook:</b> " + weather.list[i].weather[0].description); // Expected Outlook
-    $(day + "_humidity").html("<b>Humidity:</b> " + weather.list[i].humidity); // Humidty
-    $(day + "_windspeed").html("<b>Windspeed:</b> " + weather.list[i].speed); // Windspeed
-    $(day + "_icon").attr("src", "http://openweathermap.org/img/w/" + weather.list[i].weather[0].icon + ".png"); //Icons
-    $(day + "_main").html(weather.list[i].weather[0].main); //Main weather description.
+    $(day + "_temp").html("<b>Hi:</b> " + tempHi +" F (" + celTempHi +"c)<b> <br/> Lo:</b> " + tempLo  +" F ("+ celTempLow +"c)"); // High and Low temp
+    $(day + "_description").html("<b>Expected Outlook:</b> " + expectedOutlook); // Expected Outlook
+    $(day + "_humidity").html("<b>Humidity:</b> " + humidity); // Humidty
+    $(day + "_windspeed").html("<b>Windspeed:</b> " + speed); // Windspeed
+    $(day + "_icon").attr("src", "http://openweathermap.org/img/w/" + weatherIcon +".png"); //Icons
+    $(day + "_main").html(description); //Main weather description. stores the description for later use.
   }
-  BackgroundWeatherImage(weather.list[0].weather[0].main);
+  BackgroundWeatherImage(description); // sets the inital background on page load
 }
 
 function ParseDate(weather) { // converts UTC into a reconizable date.
   let forcastDays = 5;
   let weatherDay = new Date();
   let monthArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-  let dayArr = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"];
+  let dayArr = ["Sun","Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
   let datesArr = []; /// Array to hold the dates.
 
   for (i = 0; i < forcastDays; i++) {
     weatherDay.setTime(weather.list[i].dt * 1000); // converts UTC time to milliseconds
+    console.log(weatherDay.getDay());
 
     datesArr.push(dayArr[weatherDay.getDay()] + " " + monthArr[weatherDay.getMonth()] + " " + weatherDay.getDate());
   }
